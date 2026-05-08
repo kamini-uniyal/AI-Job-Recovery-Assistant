@@ -1,25 +1,24 @@
+# IMPORT LIBRARIES
 import streamlit as st
 import pandas as pd
 import ast
 import fitz
 import matplotlib.pyplot as plt
+
 st.title("AI Job Recovery Assistant")
 df = pd.read_csv("jobs_data.csv")
+
 df["Skills"] = df["Skills"].apply(ast.literal_eval)
 df["Skills"] = df["Skills"].apply(lambda x:[skill.lower() for skill in x])
-# user_input = st.text_input("Enter your skills :")
 
-
-
-
-
+# EXTRACT ALL UNIQUE SKILLS
 
 all_skills = set()
 for skills in df["Skills"]:
     for skill in skills:
         all_skills.add(skill)
 
-
+# SMART SKILL ALIASES
 skill_aliases = {
     "machine learning": ["ml"],
     "deep learning" : ["dl"],
@@ -54,6 +53,7 @@ def extract_skills_from_resume(text,all_skills):
 
     return list(set(found_skills))
 
+# USER INPUT
 
 st.subheader("📄 Upload Your Resume")
 uploaded_file = st.file_uploader("Upload Resume (PDF)", type=["pdf"])
@@ -72,15 +72,12 @@ if uploaded_file or user_input:
     else:
         user_skills = [skill.strip().lower() for skill in user_input.split(",")]
     
-
-# user_input = st.text_input("🚀 Enter your skills (comma seperated)", placeholder="e.g. Python,SQL,Excel")
-# if user_input:
-#     user_skills = [skill.strip().lower() for skill in user_input.split(",")]
+# JOB MATCHING LOGIC
     results = []
     
     for index,row in df.iterrows():
         role = row["Role"]
-        #required_skills = [skill.lower() for skill in row["Skills"]]
+       
         required_skills = row["Skills"]
 
       
@@ -100,7 +97,7 @@ if uploaded_file or user_input:
             "Missing Skills" : missing
         })
     results_df = pd.DataFrame(results)
-    results_df[results_df["Match %"] >= 30]
+    results_df = results_df[results_df["Match %"] >= 30]
     results_df = results_df.sort_values(by = "Match %", ascending = False)
     
     top_jobs = results_df.head(5)
@@ -108,35 +105,11 @@ if uploaded_file or user_input:
     if len(top_jobs) == 0:
         st.write("❌ No matching jobs found . Try adding more skills.")
     else:
+        # BEST JOB MATCH
         st.subheader("🔥 Best Job Match")
         
         best_job = top_jobs.iloc[0]
-        # st.success(f"""
-        # **Role:** {best_job['Role']}
-        
-        # **Match Percentage:** {best_job['Match %']}% 
-        # """)
-
-        # st.markdown(f"""
-        # <div
-        # style = 'background:#d4edda; padding:20px;border-radius:12px'>
-        # <h3>{best_job['Role']}</h3>
-        # <p><b>Match Percentage:</b>
-        # {best_job['Match %']}%</p>
-        # </div> 
-        # """, unsafe_allow_html=True)  
-
-        # st.markdown(f"""
-        # <div
-        # style = 'background : linear-gradient(135deg,#d4edda,#c3f0ca);
-        # padding : 20px;
-        # border - radius:15px;
-        # box-shadow:0px 4px 10px rgba(0,0,0,0.1);
-        # margin-bottom : 15px'>
-        # <h2>💼 {best_job['Role']}</h2>
-        # <p><b>Match Score:</b> {best_job['Match %']}%</p>
-        # </div>
-        # """,unsafe_allow_html=True)
+    
         st.markdown(f"""
         <div
         style = 'background:linear-gradient(135deg,#d4edda,#c3e6cb);
@@ -148,6 +121,8 @@ if uploaded_file or user_input:
         """,unsafe_allow_html=True)
 
         st.progress(int(best_job["Match %"]))
+
+        # WHY THIS JOB MATCHES
 
         st.subheader("🧠 Why this job matches you")
 
@@ -164,7 +139,8 @@ if uploaded_file or user_input:
             if len(missing) > 0:
                 st.write("❌ You need to learn:")
                 st.write(", ".join([skill.upper() for skill in missing]))
-
+       
+        # SKILLS TO IMPROVE
     
         if len(best_job["Missing Skills"])>0:
             skills_html = " ".join([
@@ -185,15 +161,15 @@ if uploaded_file or user_input:
             </div>
             """,unsafe_allow_html=True)
 
-        #     skills_text = ", ".join([skill.upper() for skill in best_job["Missing Skills"]])
-        #     st.warning(f"Skills to Improve : {skills_text}")    
+
         else:
             st.success("🎉 You are fully ready for this role!")
 
 
-            
+        # RECOMMENDED SKILLS    
+        
         st.subheader("📌 Recommended Skills to Learn")
-        # best_job = top_jobs.iloc[0]
+   
 
         suggestions = best_job["Missing Skills"][:3]
         if len(suggestions) > 0:
@@ -204,90 +180,12 @@ if uploaded_file or user_input:
             st.write("🎉 You are already job-ready!")
           
 
-                
-        # st.subheader("📊Top Job Recommendation ")
-        # st.markdown(f"💼{best_job['Role']}")
-        # st.write(f"Match Score: {best_job['Match %']}%")
-        # st.progress(int(best_job["Match %"]))
-
+        # OTHER JOB OPPORTUNITIES
         
-        # for index,row in top_jobs.iterrows():
-        #     st.write("Role :", row["Role"])
-        #     st.write("Match % :" , round(row["Match %"],1))
-        #     st.write("Missing Skills :",",".join([skill.upper() for skill in row["Missing Skills"]]))
-        #     st.write("---")
-
-        # for index , row in top_jobs.iterrows():
-        #     st.markdown(f"""
-        #     ### 💼 { row['Role']}
-        #     - Match Percentage: **{row['Match %']} %**
-        #     - Missing Skills: {",".join(row['Missing Skills'])}""")
-        #     st.divider()
-
-        # for index,row in top_jobs.iterrows():
-        #     st.markdown(f"###💼 {row['Role']}")
-        #     st.write(f"Match Percentage: {row['Match %']}%")
-
-        #     st.progress(int(row['Match %']))
-
-        #     if len(row["Missing Skills"])> 0:
-        #         st.write("Missing Skills : ")
-        #         st.write(",".join([skill.upper() for skill in row["Missing Skills"]]))
-        #     else:
-        #             st.write("✅ No missing skills!")
-        #     st.divider()
-
-        # for index,row in top_jobs.iterrows():
-        #     skills = ", ".join([skill.upper() for skill in row["Missing Skills"]])
-            # st.markdown(f"""
-            # <div
-            # style = 'padding : 15px; border-radius:10px;border:1px solid #ddd;margin-bottom:10px'>
-            # <h4>💼 {row['Role']}</h4>
-            # <p><b>Match Percentage:</b>
-            # {row['Match %']}%</p>
-            # </div>
-            # """, unsafe_allow_html=True)
-        #     st.progress(int(row["Match %"]))
-
-
-        # for index, row in top_jobs.iterrows():
-        #     match = row["Match %"]
-
-        #     if match >= 70:
-        #         color = "#d4edda"
-        #     elif match >= 40:
-        #         color = "#fff3cd"
-        #     else:
-        #         color = "#f8d7da"
-
-        #     if len(row["Missing Skills"]) > 0:
-        #         skills_html = " ".join([
-        #             f"<span style = 'background:#eee; padding:5px 10px;border-radius:15px;margin:2px'>{skill.upper()}</span>"
-        #             for skill in row["Missing Skills"]
-        #         ])
-        #     else:
-        #         skills_html = "<span style = 'color:green;font-weight:bold'>No missing skills 🎉</span>"
-
-        #     st.markdown(f"""
-        #     <div
-        #     style = 'background: {color};padding : 15px; border-radius:12px;margin-bottom:15px'>
-        #     <h4>💼 {row['Role']}</h4>
-        #     <p><b>Match:</b> {match}%</p>
-        #     {row['Match %']}%</p>
-        #     <div>{skills_html}</div>
-        #     </div>
-        #     """, unsafe_allow_html=True)
-        #     st.progress(int(match))
-
-        st.subheader("📊Other Job Opportunities")
+        st.subheader("📊 Other Job Opportunities")
         for index,row in top_jobs.iloc[1:].iterrows():
-            # match = row["Match %"]
-            # if match >= 70:
-            #     bg = "#d4edda"
-            # elif match >= 40:
-            #     bg = "#fff3cd"
-            # else:
-            #     bg = "#f87da"
+           
+      
             progress_value = int(row["Match %"])
 
             skills_html = " ".join([
@@ -326,7 +224,9 @@ if uploaded_file or user_input:
                 st.success("No missing skills!")
             st.divider()
 
-    st.subheader("📊 Job Match Comparision")
+    # JOB MATCH VISUALIZATION
+    
+    st.subheader("📊 Job Match Comparison")
     roles = top_jobs["Role"]
     scores = top_jobs["Match %"]
     fig, ax = plt.subplots()
@@ -336,9 +236,4 @@ if uploaded_file or user_input:
     ax.set_title("Top Job Matches")
     st.pyplot(fig)
 
-
-        # best_job = top_jobs.iloc[0]
-        # st.subheader("Best Match for You:")
-        # st.write("Role:",best_job["Role"])
-        # st.write("Match %",best_job["Match %"])
         
