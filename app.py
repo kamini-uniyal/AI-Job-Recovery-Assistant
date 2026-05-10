@@ -113,7 +113,8 @@ if uploaded_file or user_input:
         st.markdown(f"""
         <div
         style = 'background:linear-gradient(135deg,#d4edda,#c3e6cb);
-        padding:20px;border-radius:15px;margin-bottom:20px'>
+        padding:20px;border-radius:15px;margin-bottom:20px;color:black;
+        '>
         
         <h2>💼{best_job['Role']}</h2>
         <p><b>Match Score:</b> {best_job['Match %']}%</p>
@@ -145,6 +146,7 @@ if uploaded_file or user_input:
         if len(best_job["Missing Skills"])>0:
             skills_html = " ".join([
                 f"""<span style='background:#fff3cd;
+                color:black;
                 padding:6px 12px;
                 border-radius:20px;
                 margin:4px;
@@ -155,7 +157,7 @@ if uploaded_file or user_input:
             ])
 
             st.markdown(f"""
-            <div style = 'margin-top : 10px;margin-bottom:20px'>
+            <div style = 'margin-top : 10px;margin-bottom:20px;color:black;'>
             <b>⚠️ Skills to Improve:</b><br><br>
             {skills_html}
             </div>
@@ -190,6 +192,7 @@ if uploaded_file or user_input:
 
             skills_html = " ".join([
                 f"""<span style='background:#e0f7fa;
+                color:black;
                 padding:5px 10px;
                 border-radius:15px;
                 margin:3px;
@@ -203,7 +206,9 @@ if uploaded_file or user_input:
             <div style = 'background:#f8f9fa;
             padding : 15px;
             border-radius:12px;
-            margin-bottom:10px'>
+            margin-bottom:10px;
+            color:black;
+            '>
             <h4>💼 {row['Role']}</h4>
             <p><b>Match Score:</b> {row['Match %']}%</p>
             </div>
@@ -214,7 +219,7 @@ if uploaded_file or user_input:
                 
 
                 st.markdown(f"""
-                <div style = 'margin-bottom:20px'>
+                <div style = 'margin-bottom:20px;color:black;'>
                 <b>Missing Skills:</b><br>
                 {skills_html}
                 </div>
